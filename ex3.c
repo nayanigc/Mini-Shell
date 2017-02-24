@@ -19,22 +19,38 @@ int simple_cmd(char *argv[]){
 
 int parse_line(char* s){
 	int a =0;
-	char argv[100];
-	while(strcmp (s[a],'\0')){
-		if (strcmp(s," ")){
-			 argv[a] = s[a] ;
-			a++;
+	int b= 0;
+	char* argv[100];
+	while(strpbrk (s,"\0")== NULL ){
+		int compteur =0;
+		if (strpbrk(argv[a]," ")== NULL){
+			 argv[a] = (char *) s;
+			compteur++;
+			
 		}
+		while(b != compteur){
+			printf("%s",argv[b]);
+			b++;
+		
+		}
+		a++;	
+		
 	}
 
-	int b = simple_cmd(argv);
-	return a;
+	int c = simple_cmd(argv);
+	return c;
 
 }
 
-int main (){
-	//char* t = fgets();
-	int r = parse_line("toto");
+int main (int argc, char** argv){
+
+	char* t = "command arg1 arg2 #arg3 exit" ;
+	/*while ( fgets(t,5,0) != NULL){	
+		printf("$");
+	}*/
+	int r = parse_line(t);
+	printf("%d",r);
 	return 0;
+
 }
 
