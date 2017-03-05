@@ -6,7 +6,7 @@
 #include <sys/wait.h>
 
 int simple_cmd(char *argv[]){
-	int a = 0;
+/*	int a = 0;
 	printf("*** simple_cmd *** \n");
 	while (argv[a]!= NULL ){
 		 if (strpbrk(argv[a],"#")){
@@ -19,14 +19,19 @@ int simple_cmd(char *argv[]){
 			a++;
 		}
 	
-	}
+	}*/
+if (strncmp (argv[0],"exit",4)==0){ 
+	exit(1);
 
-
+}else if (strncmp(argv[0],"cd",2) == 0){
+	 chdir(argv[1]); 
+	return 0;
+} else {
 	pid_t pid;
-	int status;
+	int status=0;
 	
 	if((pid = fork()) == 0){
-		execvp(argv[0], argv);
+		execvp(*argv, argv);
 		perror("execvp");
 		return EXIT_FAILURE;
 	} else if(pid > 0){
@@ -37,7 +42,9 @@ int simple_cmd(char *argv[]){
 		
 	}	
 
+}
 	return 0;
+
 
 }
 
@@ -46,7 +53,7 @@ int parse_line(char* s){
 	char* word;
 	argv[0]=s;
 	int compteur = 1;
-	while((word = strpbrk (s," ")) != NULL ){
+	while((word = strpbrk (s," \n")) != NULL ){
 			printf("espace détecté : %d\n",compteur);
 			*word = '\0';
 			s = word + 1;
@@ -56,10 +63,10 @@ int parse_line(char* s){
 			compteur++;
 	}
 	argv[compteur] = (char*) s;
-	argv[compteur++] = NULL;
+	argv[compteur-1] = NULL;
 
 	for(int i=0; i<compteur;i++){
-		printf("argv[%d]= %s \n",i,argv[i]);
+		printf("argv[%d]=|%s| \n",i,argv[i]);
 	}
 	int b = simple_cmd(argv);
 	return b;
