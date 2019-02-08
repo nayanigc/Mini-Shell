@@ -43,16 +43,26 @@ int redir_cmd(char* argv[], char* in, char* out){
 	int status=0;
 	
 	if((pid = fork()) == 0){
-		int fdin = (strcmp(in, SORTIE_STANDART) == 0) ? 1 : open(in, O_RDWR);
+		int fdin = 0;
+	if (in != NULL)  fdin= open(in, O_RDONLY |O_CREAT,S_IRWXU);
 		if(fdin < 0){
 			perror("open");
-		}	
-		int fdout = (strcmp(out, SORTIE_STANDART) == 0) ? 1 : open(out, O_RDONLY);
+		}
+
+		if(dup2(fdin,0) < 0){
+			perror("dup2");
+			return EXIT_FAILURE;
+		}
+
+	
+		int fdout = 1; 
+
+		if(out != NULL) fdout=open(out, O_WRONLY  |O_CREAT,S_IRWXU);
 		if(fdout < 0){
 			perror("open");
 		}
-		close(fdout);
-		if(dup2(fdin, fdout) < 0){
+		//close(fdout);
+		if(dup2(fdout,1) < 0){
 			perror("dup2");
 			return EXIT_FAILURE;
 		}
@@ -143,7 +153,7 @@ int parse_line(char* s){
 					argvcopie[j] = argv[j];
 				}
 				argvcopie[j] = NULL;
-				redir_cmd(argvcopie, argv[i+1], SORTIE_STANDART);
+				redir_cmd(argvcopie,NULL ,argv[i+1] );
 				return 0;
 			}
 		}
@@ -156,7 +166,7 @@ int parse_line(char* s){
 					j++;
 					k++;
 				}
-				redir_cmd(argvcopie, argv[i-1], SORTIE_STANDART);
+				redir_cmd(argvcopie, argv[i-1], NULL);
 				return 0;
 			} else {
 				fprintf(stderr, "Argument attendu après '>'\n");
